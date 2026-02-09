@@ -20,16 +20,19 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
+// only works with the manually updated Authorization link, go to REAMDME for details
 app.get('/callback', async (req, res) => {
   const { code, state } = req.query;
-  console.log('code received not empty:', code.trim().length > 0)
+  
+  const {accessToken, refreshToken} = await exchangeAuthorzationCodeForAccessToken({code, clientId, clientSecret});
+  await checkAccessibleResources(accessToken);
+
+  // choose either of the below API calling methods (cloudId or siteUrl), 
+  // both will work with the same access token
+
+  // obtaining cloudId using siteUrl
   const cloudId = await getCloudId(siteUrl);
-
-  const accessToken = await exchangeAuthorzationCodeForAccessToken({code, clientId, clientSecret});
-  console.log('Access token not empty:', accessToken.trim().length > 0);
-  const accessibleResources = await checkAccessibleResources(accessToken);
-
-  console.log('Accessible resources:', accessibleResources);
+  // calling API using cloudId
   const apiCloudIdResponse = await callApiWithCloudId({
     cloudId,
     accessToken,
@@ -37,8 +40,10 @@ app.get('/callback', async (req, res) => {
     appId,
     envId
   });
+
+  // calling API directly using siteUrl
   const apiSiteUrlResponse = await callApiWithSiteUrl({
-    siteUrl: siteUrl,
+    siteUrl,
     accessToken,
     apiPath,
     appId,
@@ -53,5 +58,4 @@ app.listen(port, () => {
     process.exit(1);
   }
   console.log(`Example app listening on port ${port}`)
-  console.log('UUID: ', crypto.randomUUID());
 })

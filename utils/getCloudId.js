@@ -4,6 +4,5 @@ export const getCloudId = async (siteUrl) => {
     throw new Error(`Failed to get cloud ID: ${resp.statusText}`);
   }
   const data = await resp.json();
-  console.log('cloudId', data.cloudId);
   return data.cloudId;
 }

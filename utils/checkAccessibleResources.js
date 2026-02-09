@@ -8,5 +8,9 @@ export const checkAccessibleResources = async (accessToken) => {
   if (!resp.ok) {
     throw new Error(`Failed to check accessible resources: ${resp.statusText}`);
   }
-  return await resp.json();
+
+  // always empty, possibly a bug on Atlassian side, read the discussion on README.md
+  const accessibleResources =  await resp.json();
+  console.log('Accessible resources response:', accessibleResources);
+  return accessibleResources;
 }
